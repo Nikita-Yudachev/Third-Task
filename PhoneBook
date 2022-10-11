@@ -1,0 +1,117 @@
+import java.util.ArrayList;
+import java.util.List;
+
+class Record{
+    long id;
+    String phoneNumber;
+    String name;
+    public Record(long id, String phoneNumber, String name){
+        this.id = id;
+        this.phoneNumber = phoneNumber;
+        this.name = name;
+    }
+    public Record (long id) throws RecordNotValid{
+        throw new RecordNotValid("Введены не все данные");
+    }
+    public Record(long id, String phoneNumber_or_name) throws RecordNotValid {
+        throw new RecordNotValid("Введены не все данные");
+    }
+    public String recordInfo(){
+        ArrayList<String> info = new ArrayList<>();
+        info.add(Long.toString(id));
+        info.add(phoneNumber);
+        info.add(name);
+        return info.toString();
+    }
+}
+
+public class PhoneBook {
+    String number;
+    public PhoneBook(String number){
+        this.number = number;
+    }
+    static ArrayList<Record> group = new ArrayList<>();
+    public static void main(String[] args) throws PhoneNumberAlreadyExists, RecordNotFound, RecordNotValid {
+        PhoneBook myBook = new PhoneBook("1");
+        Record first = new Record(1,"89097072030","Max");
+        Record second = new Record(2,"89097072033","Kola");
+        Record second_1 = new Record(3,"89097072033","Koka");
+//        Record second_2 = new Record(2);
+//        Record second_3 = new Record(2, "89097072033");
+//        Record second_4 = new Record(2, "Kok");
+//        System.out.println(myBook.getAllRecords());
+        myBook.createRecord(first);
+//        System.out.println(myBook.getAllRecords());
+        myBook.createRecord(second);
+        System.out.println(myBook.getAllRecords());
+        myBook.updateRecord(second_1);
+        System.out.println(myBook.getAllRecords());
+        myBook.deleteRecord(2);
+        System.out.println(myBook.getAllRecords());
+    }
+    public List<String> getAllRecords(){
+        ArrayList<String> groups = new ArrayList<>();
+        for(Record i: group){
+            groups.add(i.name + " " + i.phoneNumber);
+        }
+        return groups;
+    }
+    public void createRecord(Record record) throws PhoneNumberAlreadyExists {
+        for(Record i: group){
+            if(i.phoneNumber == record.phoneNumber){
+                throw new PhoneNumberAlreadyExists("Данный номер уже существует.");
+            }
+        }
+        group.add(record);
+    }
+    public void updateRecord(Record record) throws RecordNotFound, PhoneNumberAlreadyExists {
+        long k = 0;
+        for(Record i: group){
+            if(i.id == record.id){
+                k+=1;
+                if(i.phoneNumber == record.phoneNumber) {
+                    i.name = record.name;
+                }
+                if(i.phoneNumber != record.phoneNumber){
+                    for(Record j: group){
+                        if(j.phoneNumber == record.phoneNumber){
+                            throw new PhoneNumberAlreadyExists("Данный номер уже существует.");
+                        }
+                    }
+                    i.name = record.name;
+                    i.phoneNumber = record.phoneNumber;
+                }
+            }
+        }
+        if(k==0){
+            throw new RecordNotFound("Данный id не найден.");
+        }
+    }
+    public void deleteRecord(long id) throws RecordNotFound {
+        long k = 0;
+        for(int i = 0; i<group.size(); i++){
+            if(group.get(i).id == id){
+                k+=1;
+                group.remove(i);
+            }
+        }
+        if(k==0){
+            throw new RecordNotFound("Данный id не найден.");
+        }
+    }
+}
+class PhoneNumberAlreadyExists extends Exception {
+    public PhoneNumberAlreadyExists (String message){
+        super(message);
+    }
+}
+class RecordNotFound extends RuntimeException{
+    public RecordNotFound (String message){
+        super(message);
+    }
+}
+class RecordNotValid extends Exception{
+    public RecordNotValid (String message){
+        super(message);
+    }
+}
